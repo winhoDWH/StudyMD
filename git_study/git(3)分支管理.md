@@ -22,3 +22,14 @@ Git与SVN等其他版本控制系统在分支管理的优势是：Git速度快�
 2. 解决冲突：将GIT合并失败的文件R再修改一次，然后进行合并就可以了；所以合并失败后的修改要修改成自己想要的样子；
 3. 使用**git log --graph --pretty=oneline --abbrev-commit**命令可以看到分支图；
 
+##BUG分支
+1. 应用场景：在一个dev分支开发过程中，发现主分支master上文件有BUG需要修改，但现在合并dev分支会使master文件出现错误（还没有开发完），这时候就需要**隐藏dev分支的内容是我们能在保存开发进度的同时，修复以前的BUG**；
+2. **git stash**命令，用于将分支内容进行隐藏，执行该命令后，git status显示工作区状态为干净的；
+3. 假定需要在master分支上进行修复bug。则在master分支上另开一个分支debug1；修改完成后合并到master中；
+4. 返回到dev分支上，使用**git stash list**命令可以查看之前保存的工作区记录；
+5. 恢复：
+    * 一是使用**git stash apply <stash代号>**，stash内容不删除，需要而外使用**git stash drop<stash代号>**删除；stash代号通过使用git stash list查看；
+    * 二是使用**git stash pop**，会在恢复的同时删除内容；
+6. 但是以上步骤有一个问题，就是master的bug，dev分支上也会有，所以也需要修复（问题）。解决方法：将之前debug1分支上修改后的提交复制到dev分支上；
+7. **git cherry-pick <commit id>**这个命令可以复制一个commit的修改；其中commit id为debug1分支中我们提交的操作id；
+8. 总结过程：隐藏开发工作的修改（stash）是我们能切换分支->修复后换回开发分支，将隐藏的修改恢复以及复制修改操作。
