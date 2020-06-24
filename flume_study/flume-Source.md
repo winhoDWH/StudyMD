@@ -15,6 +15,7 @@
     agent1.sources.userSource.channels = memory
 ```
 2. 可选参数列表：
+![Source可选参数](Source可选配置参数.jpg)
     >拦截器是相对特殊的属性，可以对不同的拦截器进行进一步参数的设置，有多个拦截器时，**之间用空格分隔开来**；如：
     ```
     //设置两个拦截器i1和i2
