@@ -1,0 +1,4 @@
+##Sink
+1. 每个sink必须连接一个正确配置的Channel，并有一个定义的type参数；如果没有配置正确会被系统移除；
+2. 一个sink组会有一个或者多个sink，有一个sink运行器来运行一个sink组；
+3. sink运行器是一个循环调用process方法的线程，依次转发调用到组里其中一个sink的process方法（运行器的process方法调用了sink的process方法）；当被调用的sink可以处理事件时，则返回status.READY，否则返回status.BACKOFF。
