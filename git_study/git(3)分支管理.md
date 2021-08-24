@@ -22,6 +22,11 @@ Git与SVN等其他版本控制系统在分支管理的优势是：Git速度快�
 2. 解决冲突：将GIT合并失败的文件R再修改一次，然后进行合并就可以了；所以合并失败后的修改要修改成自己想要的样子；
 3. 使用**git log --graph --pretty=oneline --abbrev-commit**命令可以看到分支图；
 
+##git pull与git fetch的区别
+1. git pull是git fetch与git merge两个指令的结合；正常流程先是将远程仓库中的文件fetch拉取到我们的**本地仓库中**，然后再**同步merge到我们的工作区中**，所以是两个指令完成一个远端仓库与本地仓库的同步；pull指令则是自动进行合并；
+2. 当本地仓库与远程仓库发生冲突时（即日志中远程仓库的修改origin/master与本地的HEAD/master不一致，两个仓库的对同一个文件的修改记录不一致）：本地上传push会报错，然后就需要我们先pull或者fetch文件，使用pull的话会在merge的时候警告文件有冲突，需要我们自己去做修改
+![git远程与本地操作示意图.jpg](img/git远程与本地操作示意图.jpg "git远程与本地操作示意图")
+
 ##BUG分支
 1. 应用场景：在一个dev分支开发过程中，发现主分支master上文件有BUG需要修改，但现在合并dev分支会使master文件出现错误（还没有开发完），这时候就需要**隐藏dev分支的内容是我们能在保存开发进度的同时，修复以前的BUG**；
 2. **git stash**命令，用于将分支内容进行隐藏，执行该命令后，git status显示工作区状态为干净的；
@@ -33,3 +38,15 @@ Git与SVN等其他版本控制系统在分支管理的优势是：Git速度快�
 6. 但是以上步骤有一个问题，就是master的bug，dev分支上也会有，所以也需要修复（问题）。解决方法：将之前debug1分支上修改后的提交复制到dev分支上；
 7. **git cherry-pick <commit id>**这个命令可以复制一个commit的修改；其中commit id为debug1分支中我们提交的操作id；
 8. 总结过程：隐藏开发工作的修改（stash）是我们能切换分支->修复后换回开发分支，将隐藏的修改恢复以及复制修改操作。
+
+##删除一个还未合并的分支
+使用**git branch -D <分支名>**指令；因为未合并的分支是不允许直接删除的，所以需要使用-D强制删除；
+
+##多人协作
+1. 在远程仓库有多个分支的情况下，可以选择本地分支推送到远程仓库的什么分支上，使用**git push origin(远程仓库名) <远程分支名>**;
+2. 使用**git branch --set-upstream-to<本地branch-name> origin/<branch-name>**将本地分支与远程分支建立连接；
+3. 根据远程分支建立对应的本地分支（**与2不相同！**）；使用**git checkout -b branch-name origin/branch-name**
+4. 建立连接的目的是：**可以直接进行pull拉取，即直接使用git pull指令**；可是push上传同样还是需要标明远程分支，即使用**git push origin <远程分支名>**指令格式；
+
+##rebase操作
+使历史整理成一条直线？

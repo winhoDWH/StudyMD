@@ -1,0 +1,329 @@
+
+<project xmlns = "http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi = "http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation = "http://maven.apache.org/POM/4.0.0
+    http://maven.apache.org/xsd/maven-4.0.0.xsd">
+ 
+    <!-- 模型版本 -->
+    <modelVersion>4.0.0</modelVersion>
+    <!-- 公司或者组织的唯一标志，也是打包成jar包路径的依据 -->
+    <!-- 例如com.companyname.project-group，maven打包jar包的路径：/com/companyname/project-group -->
+    <groupId>com.companyname.project-group</groupId>
+    <!-- 项目的唯一ID，一个groupId下面可能多个项目，就是靠artifactId来区分的 -->
+    <artifactId>project</artifactId>
+    <!-- 项目当前版本，格式为:主版本.次版本.增量版本-限定版本号 -->
+    <version>1.0</version>
+ 
+    <!--项目打包后产生的文件类型，包括jar、war、ear、pom等 -->
+    <packaging>jar</packaging>
+
+    <!--父项目的坐标，坐标包括group ID，artifact ID和version。 -->
+    <!--如果项目中没有规定某个元素的值，那么父项目中的对应值即为项目的默认值 -->
+    <parent>
+        <!--被继承的父项目的构件标识符 -->
+        <artifactId>com.companyname.project-group</artifactId>
+        <!--被继承的父项目的全球唯一标识符 -->
+        <groupId>base-project</groupId>
+        <!--被继承的父项目的版本 -->
+        <version>1.0.1-RELEASE</version>
+        <!-- 父项目的pom.xml文件的相对路径,默认值是../pom.xml。 -->
+        <!-- 寻找父项目的pom：构建当前项目的地方->relativePath指定的位置->本地仓库->远程仓库 -->
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    
+    <!--该元素描述了项目相关的所有依赖。 这些依赖自动从项目定义的仓库中下载 -->
+    <dependencies>
+        <dependency>
+            <!-- 依赖坐标 -->
+            <!--依赖项目的坐标三元素：groupId + artifactId + version -->
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-artifact</artifactId>
+            <version>3.8.1</version>
+ 
+            <!-- 依赖类型 -->
+            <!-- 依赖类型，默认是jar。通常表示依赖文件的扩展名，但有例外。一个类型可以被映射成另外一个扩展名或分类器 -->
+            <!-- 类型经常和使用的打包方式对应，尽管这也有例外，一些类型的例子：jar，war，ejb-client和test-jar -->
+            <!-- 如果设置extensions为true，就可以在plugin里定义新的类型 -->
+            <type>jar</type>
+            <!-- 依赖的分类器。分类器可以区分属于同一个POM，但不同构建方式的构件。分类器名被附加到文件名的版本号后面 -->
+            <!-- 如果想将项目构建成两个单独的JAR，分别使用Java 4和6编译器，就可以使用分类器来生成两个单独的JAR构件 -->
+            <classifier></classifier>
+ 
+            <!-- 依赖传递 -->
+            <!--依赖排除，即告诉maven只依赖指定的项目，不依赖该项目的这些依赖。此元素主要用于解决版本冲突问题 -->
+            <exclusions>
+                <exclusion>
+                    <artifactId>spring-core</artifactId>
+                    <groupId>org.springframework</groupId>
+                </exclusion>
+            </exclusions>
+            <!-- 可选依赖，用于阻断依赖的传递性。如果在项目B中把C依赖声明为可选，那么依赖B的项目中无法使用C依赖 -->
+            <optional>true</optional>
+            
+            <!-- 依赖范围 -->
+            <!--依赖范围。在项目发布过程中，帮助决定哪些构件被包括进来
+                - compile：默认范围，用于编译;  - provided：类似于编译，但支持jdk或者容器提供，类似于classpath 
+                - runtime: 在执行时需要使用;    - systemPath: 仅用于范围为system。提供相应的路径 
+                - test: 用于test任务时使用;    - system: 需要外在提供相应的元素。通过systemPath来取得 
+                - optional: 当项目自身被依赖时，标注依赖是否传递。用于连续依赖时使用 -->
+            <scope>test</scope>
+            <!-- 该元素为依赖规定了文件系统上的路径。仅供scope设置system时使用。但是不推荐使用这个元素 -->
+            <!-- 不推荐使用绝对路径，如果必须要用，推荐使用属性匹配绝对路径，例如${java.home} -->
+            <systemPath></systemPath>
+        </dependency>
+    </dependencies>
+ 
+    <!-- 继承自该项目的所有子项目的默认依赖信息，这部分的依赖信息不会被立即解析。 -->
+    <!-- 当子项目声明一个依赖，如果group ID和artifact ID以外的一些信息没有描述，则使用这里的依赖信息 -->
+    <dependencyManagement>
+        <dependencies>
+            <!--参见dependencies/dependency元素 -->
+            <dependency>
+                ......
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+     <!--构建项目需要的信息 -->
+    <build>
+        <!-- 路径管理（在遵循约定大于配置原则下，不需要配置）-->
+        <!--项目源码目录，当构建项目的时候，构建系统会编译目录里的源码。该路径是相对于pom.xml的相对路径。 -->
+        <sourceDirectory />
+        <!--该元素设置了项目单元测试使用的源码目录。该路径是相对于pom.xml的相对路径 -->
+        <testSourceDirectory />
+        <!--被编译过的应用程序class文件存放的目录。 -->
+        <outputDirectory />
+        <!--被编译过的测试class文件存放的目录。 -->
+        <testOutputDirectory />        
+        <!--项目脚本源码目录，该目录下的内容，会直接被拷贝到输出目录，因为脚本是被解释的，而不是被编译的 -->
+        <scriptSourceDirectory />
+ 
+        <!-- 资源管理 -->
+        <!--这个元素描述了项目相关的所有资源路径列表，例如和项目相关的属性文件，这些资源被包含在最终的打包文件里。 -->
+        <resources>
+            <!--这个元素描述了项目相关或测试相关的所有资源路径 -->
+            <resource>
+                <!-- 描述了资源的目标输出路径。该路径是相对于target/classes的路径 -->
+                <!-- 如果是想要把资源直接放在target/classes下，不需要配置该元素 -->
+                <targetPath />
+                <!--是否使用参数值代替参数名。参数值取自文件里配置的属性，文件在filters元素里列出。 -->
+                <filtering />
+                <!--描述存放资源的目录，该路径相对POM路径 -->
+                <directory />
+                <!--包含的模式列表，例如**/*.xml，只有符合条件的资源文件才会在打包的时候被放入到输出路径中 -->
+                <includes />
+                <!--排除的模式列表，例如**/*.xml，符合的资源文件不会在打包的时候会被过滤掉 -->
+                <excludes />
+            </resource>
+        </resources>
+        <!--这个元素描述了单元测试相关的所有资源路径，例如和单元测试相关的属性文件。 -->
+        <testResources>
+            <!--这个元素描述了测试相关的所有资源路径，子元素说明参考build/resources/resource元素的说明 -->
+            <testResource>
+                <targetPath />
+                <filtering />
+                <directory />
+                <includes />
+                <excludes />
+            </testResource>
+        </testResources>
+ 
+        <!-- 插件管理 -->
+        <!-- 子项目可以引用的默认插件信息。pluginManagement中的插件直到被引用时才会被解析或绑定到生命周期 -->
+        <!-- 这里只是做了声明，并没有真正的引入。给定插件的任何本地配置都会覆盖这里的配置-->
+        <pluginManagement>
+            <!-- 可使用的插件列表 -->
+            <plugins>
+                <!--plugin元素包含描述插件所需要的信息。 -->
+                <plugin>
+                    <!--插件在仓库里的group ID -->
+                    <groupId />
+                    <!--插件在仓库里的artifact ID -->
+                    <artifactId />
+                    <!--被使用的插件的版本（或版本范围） -->
+                    <version />
+                    <!-- 是否从该插件下载Maven扩展(例如打包和类型处理器) -->
+                    <!-- 由于性能原因，只有在真需要下载时，该元素才被设置成enabled -->
+                    <extensions />
+                    <!--在构建生命周期中执行一组目标的配置。每个目标可能有不同的配置。 -->
+                    <executions>
+                        <!--execution元素包含了插件执行需要的信息 -->
+                        <execution>
+                            <!--执行目标的标识符，用于标识构建过程中的目标，或者匹配继承过程中需要合并的执行目标 -->
+                            <id />
+                            <!--绑定了目标的构建生命周期阶段，如果省略，目标会被绑定到源数据里配置的默认阶段 -->
+                            <phase />
+                            <!--配置的执行目标 -->
+                            <goals />
+                            <!--配置是否被传播到子POM -->
+                            <inherited />
+                            <!--作为DOM对象的配置 -->
+                            <configuration />
+                        </execution>
+                    </executions>
+                    <!--项目引入插件所需要的额外依赖 -->
+                    <dependencies>
+                        <!--参见dependencies/dependency元素 -->
+                        <dependency>
+                            ......
+                        </dependency>
+                    </dependencies>
+                    <!--任何配置是否被传播到子项目 -->
+                    <inherited />
+                    <!--作为DOM对象的配置 -->
+                    <configuration />
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <!--使用的插件列表 -->
+        <plugins>
+            <!--参见build/pluginManagement/plugins/plugin元素 -->
+            <plugin>
+                <groupId />
+                <artifactId />
+                <version />
+                <extensions />
+                <executions>
+                    <execution>
+                        <id />
+                        <phase />
+                        <goals />
+                        <inherited />
+                        <configuration />
+                    </execution>
+                </executions>
+                <dependencies>
+                    <!--参见dependencies/dependency元素 -->
+                    <dependency>
+                        ......
+                    </dependency>
+                </dependencies>
+                <goals />
+                <inherited />
+                <configuration />
+            </plugin>
+        </plugins>
+ 
+<!-- 构建扩展 -->
+<!--使用来自其他项目的一系列构建扩展 -->
+        <extensions>
+            <!--每个extension描述一个会使用到其构建扩展的一个项目，extension的子元素是项目的坐标 -->
+            <extension>
+                <!--项目坐标三元素：groupId + artifactId + version -->
+                <groupId />
+                <artifactId />
+                <version />
+            </extension>
+        </extensions>
+ 
+        <!-- 其他配置 -->
+        <!--当项目没有规定目标（Maven2 叫做阶段）时的默认值 -->
+        <defaultGoal />
+        <!--构建产生的所有文件存放的目录 -->
+        <directory />
+        <!--产生的构件的文件名，默认值是${artifactId}-${version}。 -->
+        <finalName />
+        <!--当filtering开关打开时，使用到的过滤器属性文件列表 -->
+        <filters />
+    </build>
+
+<!--项目的名称, Maven生成文档使用 -->
+    <name>project-maven</name>
+    <!--项目主页的URL, Maven生成文档使用 -->
+    <url>http://123.a.b/nsnxs</url>
+    <!-- 项目的详细描述, Maven生成文档使用。当这个元素能够用HTML格式描述时，不鼓励使用纯文本描述 -->
+    <!--如果你需要修改生成的web站点的索引页面，你应该修改你自己的索引页文件，而不是调整这里的文档 -->
+    <description>Description of this maven project</description>
+
+
+ <!--发现依赖和扩展的远程仓库列表。 -->
+    <repositories>
+        <!--包含需要连接到远程仓库的信息 -->
+        <repository>
+            <!--如何处理远程仓库里发布版本的下载 -->
+            <releases>
+                <!--值为true或者false，表示该仓库是否为下载某种类型构件（发布版，快照版）开启。 -->
+                <enabled />
+                <!--该元素指定更新发生的频率。Maven会比较本地POM和远程POM的时间戳 -->
+                <!--选项：always，daily（默认），interval：X（X单位为分钟），或者never。 -->
+                <updatePolicy />
+                <!--当Maven验证构件校验文件失败时该怎么做。选项：ignore，fail，或者warn -->
+                <checksumPolicy />
+            </releases>
+            <!-- 如何处理远程仓库里快照版本的下载 -->
+            <!-- 有了releases和snapshots这两组配置，就可以在每个单独的仓库中，为每种类型的构件采取不同的策略 -->
+            <snapshots>
+                <enabled />
+                <updatePolicy />
+                <checksumPolicy />
+            </snapshots>
+ 
+            <!--远程仓库唯一标识符。可以用来匹配在settings.xml文件里配置的远程仓库 -->
+            <id>nanxs-repository-proxy</id>
+            <!--远程仓库名称 -->
+            <name>nanxs-repository-proxy</name>
+            <!--远程仓库URL，按protocol://hostname/path形式 -->
+            <url>http://192.168.1.169:9999/repository/</url>
+            <!-- 用于定位和排序构件的仓库布局类型。可以是default或者legacy -->
+            <layout>default</layout>
+        </repository>
+    </repositories>
+    
+    <!--发现插件的远程仓库列表，这些插件用于构建和报表 -->
+    <pluginRepositories>
+        <!--包含需要连接到远程插件仓库的信息。参见repositories/repository元素 -->
+        <pluginRepository>
+            ......
+        </pluginRepository>
+    </pluginRepositories>
+
+     <!--项目分发信息，在执行mvn deploy后表示要发布的位置。用于把网站部署到远程服务器或者把构件部署到远程仓库 -->
+    <distributionManagement>
+        <!--部署项目产生的构件到远程仓库需要的信息 -->
+        <repository>
+            <!-- 是分配给快照一个唯一的版本号 -->
+            <uniqueVersion />
+            <!-- 其他配置参见repositories/repository元素 -->
+            <id>nanxs-maven2</id>
+            <name>nanxsmaven2</name>
+            <url>file://${basedir}/target/deploy</url>
+            <layout />
+        </repository>
+        <!--构件的快照部署的仓库。默认部署到distributionManagement/repository元素配置的仓库 -->
+        <snapshotRepository>
+            <uniqueVersion />
+            <id>nanxs-maven2</id>
+            <name>Nanxs-maven2 Snapshot Repository</name>
+            <url>scp://svn.baidu.com/nanxs:/usr/local/maven-snapshot</url>
+            <layout />
+        </snapshotRepository>
+        <!--部署项目的网站需要的信息 -->
+        <site>
+            <!--部署位置的唯一标识符，用来匹配站点和settings.xml文件里的配置 -->
+            <id>nanxs-site</id>
+            <!--部署位置的名称 -->
+            <name>business api website</name>
+            <!--部署位置的URL，按protocol://hostname/path形式 -->
+            <url>scp://svn.baidu.com/nanxs:/var/www/localhost/nanxs-web</url>
+        </site>
+        <!--项目下载页面的URL。如果没有该元素，用户应该参考主页 -->
+        <!--本元素是为了帮助定位那些不在仓库里的构件(license限制) -->
+        <downloadUrl />
+        <!--如果构件有了新的group ID和artifact ID（构件移到了新的位置），这里列出构件的重定位信息 -->
+        <relocation>
+            <!--构件新的group ID -->
+            <groupId />
+            <!--构件新的artifact ID -->
+            <artifactId />
+            <!--构件新的版本号 -->
+            <version />
+            <!--显示给用户的，关于移动的额外信息，例如原因 -->
+            <message />
+        </relocation>
+        <!-- 给出该构件在远程仓库的状态。本地项目中不能设置该元素，因为这是工具自动更新的 -->
+        <!-- 有效的值有：none（默认），converted（仓库管理员从 Maven 1 POM转换过来），
+            partner（直接从伙伴Maven 2仓库同步过来），deployed（从Maven 2实例部署），
+            verified（被核实时正确的和最终的） -->
+        <status />
+    </distributionManagement>
+</project>
