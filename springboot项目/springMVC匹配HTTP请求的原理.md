@@ -1,15 +1,15 @@
-### SpringMVC接收请求
-#### 一、HTTP基础知识
+# SpringMVC接收请求
+## 一、 HTTP基础知识
 1. 决定返回体Response的类型`Context-type`的是请求中Header的`accept`属性，该属性的值又称为`MediaType`。服务端会根据这个属性决定返回体的类型，如果服务端不支持请求的`accept`属性，将会返回**406 Not Acceptable**
 2. 如果`accept`指定了多个`MediaType`,服务端也支持多个`MediaType`，那`Accpet`应同时指定每个类型的权重`QualityValue(q值)`来决定优先级；
    * 默认情况下权重：text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8；如果**不指定权重默认q=1**
 3. `Content-Type`必须是具体确定的类型，不能包含*。
 4. `SpringMVC`通过自动设置一系列默认的`HttpMessageConverter`，对http请求进行序列化和反序列化的操作（即读写请求体和返回体）；
 
-### 写操作，将返回值写入到返回流中
-1. org.springframework.web.servlet.mvc.method.annotation.AbstractMessageConverterMethodProcessor类中的writeWithMessageConverters方法去处理这部分；
+## 二、 写操作，将返回值写入到返回流中
+1. `org.springframework.web.servlet.mvc.method.annotation.AbstractMessageConverterMethodProcessor`类中的``writeWithMessageConverters()``方法去处理这部分；
 2. 逻辑：先从Accept中获取所有mediaType类型（MIME），然后根据请求找到配置的Converter（处理请求参数转化的实现类）中适合该mediaType类型的所有mediaType类型（即框架能处理Accept的所有类型）；然后根据**q值和具体程度**来排序， 选择最后输出的mediaType类型,然后选择Converter；
-```
+```java
     /**
     *  @param value:controller方法返回的对象；
     *  @param returnType:对方法参数类型的描述，springboot封装的一个类
@@ -101,9 +101,9 @@
 ```
 3. 原生的fastJsonConverter因为其mediaType是*/*，所以所有类型的反序列化和序列化在框架中都可以调用该Converter；**在写操作中，如果将fastJsonConverter的优先级调到最高，则无论返回是不是application/json，甚至禁用返回类型为application/json，都会调用fastJsonConverter进行处理，返回的都是json格式数据，但content-Type可能是别的类型！**；
 
-### 读取操作，只有给参数加上@RequestBody才会使用
-1. AbstractMessageConverterMethodArgumentResolver类（写操作的父类）的readWithMessageConverters方法
-```
+## 三、读取操作-请求参数加上@RequestBody的情况
+1. 调用了AbstractMessageConverterMethodArgumentResolver类（写操作的父类）的readWithMessageConverters方法
+```java
     /**
     * @param inputMessage：请求输入流
     * @param parameter:请求对应controller的方法参数的描述
@@ -160,24 +160,23 @@
     }
 ```
 1. 主要处理过程：先获取请求中的`Context-type`属性，得到请求体类型说明`media-Type`；如果没有该属性，则默认为：`application/octet-stream`类型；然后根据`media-Type`选取`HttpMessageConverter`，然后处理请求体；
+1. 这里对请求参数的转换器分为两种，一种是实现了`GenericHttpMessageConverter`类的，另一种是只实现了`HttpMessageConverter`类的转换器。
 
 ### GenericHttpMessageConverter类
-1. 
-    ```
-        /**
-        * 
-        * 
-        * 
-        */
-        boolean canRead(Type type, Class<?> contextClass, MediaType mediaType);
-    ```
-### HttpMessageConverter类
-1. boolean canRead(Class<?> clazz, MediaType mediaType);方法
 
-### 源码
+```java
+boolean canRead(Type type, Class<?> contextClass, MediaType mediaType);
+```
+
+### HttpMessageConverter类
+```java
+boolean canRead(Class<?> clazz, MediaType mediaType);
+```
+
+## 四、 读取操作-请求参数加上@RequestParam
 1. 当Controller类的方法参数不带注解时，实际上和加上注解@RequestParam是一样的处理方法，只是@RequestParam可以设置一些约束；
 2. 当使用@RequestParam注解和@RequestPart注解时，会调用InvocableHandlerMethod类的getMethodArgumentValues方法，该方法通过for循环遍历每一个controller方法参数，为每个参数寻找一个处理器，然后根据请求进行赋值
-   ```
+   ```java
     /**
      * MethodParameter[] parameters是请求对应的controller方法的参数列表
      * 
@@ -207,7 +206,7 @@
     }
    ```
 3. 进一步查看`this.resolvers.resolveArgument(...)`调用源码
-    ```
+    ```java
     public Object resolveArgument(MethodParameter parameter, @Nullable ModelAndViewContainer mavContainer,
 			NativeWebRequest webRequest, @Nullable WebDataBinderFactory binderFactory) throws Exception {
         //该方法作用是：从该类的缓存中获取一个能处理当前参数的处理器
@@ -221,7 +220,7 @@
 	}
     ```
 
-### HandlerMethodArgumentResolver类
+### HandlerMethodArgumentResolver类-请求参数处理器
 1. 上面处理器都是继承该类的，该类有两个方法；
 2. `boolean supportsParameter(MethodParameter parameter);`用来判断是否适合处理当前方法参数；
 3. `Object resolveArgument(....)`:根据请求将方法参数赋值；
