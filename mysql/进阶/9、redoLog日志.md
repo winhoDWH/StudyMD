@@ -15,3 +15,54 @@
 
   盘100MB数据和每秒可以写入磁盘200MB数据，对数据库的并发能力影响也是极大的。
 
+## redo log日志结构
+
+1. 大致结构如下：
+
+> 表空间号+数据页号+偏移量+修改几个字节的值+具体的值
+
+2. 根据修改数据页中数据大小的不同，redo log日志中会记录修改类型不同；
+
+- `MLOG_1BYTE`类型的日志指的就是修改了1个字节的值，`MLOG_2BYTE`类型的日志指的就是修改了2个字节的值，以此类推，还有修改了4个字节的值的日志类型，修改了8个字节的值的日志类型。其日志结构为：
+
+> 日志类型（就是类似MLOG_1BYTE之类的），表空间ID，数据页号，数据页中的偏移量，具体修改的数据
+
+- `MLOG_WRITE_STRING`是当**修改了较多字节的数据**时，使用该类型说明并且会**多一个修改数据长度说明修改了多少字节的数据**。
+
+> MLOG_WRITE_STRING，表空间ID，数据页号，数据页中的偏移量，修改数据长度，具体修改的数据
+
+
+
+## redo log block
+
+1. 上面解释了单条`redo log`(即一次修改数据的记录)的结构，但是一个事务会有多个语句执行多次数据修改，**所以一个事务会有多个`redo log`，即是一组`redo log group`**，而这一个`redo log`需要通过转换成`redo log block`后才能写入文件中。
+2. 用于写入`redo log`文件中的最小记录单位；
+3. 一个事务操作产生的`redo log`可能产生多个`redo log block`，也可能只有一个`redo log block`；即`redo log block`只是一种信息记录模板；
+4. 一个`redo log block`是**512字节**，这个`redo log block`的512字节分为3个部分，一个是**12字节**的**`header`块头**，一个是**496字节**的**body块体**，一个是**4字节**的**trailer块尾**
+
+4. header头结构：
+   - 4个字节的`block no`， 块block唯一编号；
+   - 2个字节的`data length`， 块block写入了多少字节数据；
+   - 2个字节的`first record group`。用于记录每个事务的那一组`redo log group`，在这个block中存储`redo log`的偏移量；
+   - 4个字节的`checkpoint on`；
+5. 首先程序会将`redo log`在内存中分解组装成多个`redo log block`，然后在写入硬盘中的日志文件中。
+
+![image-20230206164841431](img/image-20230206164841431.png)
+
+## redo log buffer
+
+1. 上文block中，内存中组装`redo log block`的缓存区域为`redo log buffer`；
+2. 同`buffer pool`一样，是`mysql`启动时申请内存中连续的空间，并划分出多个`redo log blockl`；
+3. 通过设置mysql的`innodb_log_buffer_size`可以指定这个redo log buffer的大小，默认的值就是**16MB**；
+4. 将`redo log block`刷入磁盘文件的时刻：
+   - 当超过`redo log buffer`容量的一半后，会把buffer中的内容刷入文件中；
+   - 当事务提交时，根据`redo log配置的刷新策略`，刷入文件中；
+   - 后台线程定时（1秒）刷新入文件中；
+   - mysql关闭时，会刷新；
+
+## 硬盘的中redo log文件
+
+1. 可以通过`innodb_log_group_home_dir`参数设置磁盘中redo log文件数量，默认为2；
+2. 可以通过`innodb_log_file_size`限制每个文件大小。
+3. 当写完所有`redo log`文件后，将重新覆写第一个日志文件；
+
