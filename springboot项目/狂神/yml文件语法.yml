@@ -1,0 +1,17 @@
+# 键值对,注意冒号后面跟空格
+key: value
+
+# 数组
+array: [a1, a2, a3]
+array1:
+  - a1
+  - a2
+  - a3
+
+#对象
+student:
+  name: hahha
+  age: 18
+
+# 行内写法
+student: {name: hahah, age: 18}

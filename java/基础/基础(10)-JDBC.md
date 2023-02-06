@@ -8,7 +8,7 @@
 ### JDBC
 #### 连接基本流程
 获取数据库驱动-->获取数据库连接-->获取对话-->通过对话执行sql语句；
-```
+```java
 public static void main(String[] args) throws Exception {
         /**第一步：获取驱动**/
         Class.forName("com.mysql.jdbc.Driver");
@@ -71,5 +71,3 @@ public static void main(String[] args) throws Exception {
 1. 作用：查询结果集对象；可通过索引或者列名获取数据值；
 2. 提供了很多方法去调整记录指针，用来获取不同行的数据（即List<Map<String, Object>>结果集中某个Map）；
 3. 可使用`getXXX(int index)`或者`getXXX(String name)`获取数据对象；最通用的就是`getString()`，因为除了**Blob类型外**，所有类型都可以转换成String类型；
-
-####

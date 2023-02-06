@@ -4,5 +4,5 @@
 
 参考：
 1. https://blog.csdn.net/qq_35549286/article/details/109047777 META-INF/spring.factories文件的作用是什么
-2. https://www.jianshu.com/p/8dff56465dbf SpringBoot 启动过程源码分析
+2. https://juejin.cn/post/6940128900093575198#heading-13 SpringBoot 启动过程源码分析
 3. 
